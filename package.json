@@ -6,11 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sol:clean": "npx hardhat clean",
+    "sol:compile": "npx hardhat compile",
+    "sol:deploy": "npx hardhat run scripts/deploy.js --network sepolia"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.9.2",
+    "ethers": "^6.6.2",
     "next": "13.4.8",
     "react": "18.2.0",
     "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.16.1"
   }
 }

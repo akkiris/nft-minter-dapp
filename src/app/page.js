@@ -90,11 +90,27 @@ export default function Home() {
             </button>
           ) : null}
           {isBrowserCompatible && isWalletConnected ? (
-            <div className={styles.description}>
+            <div
+              className={styles.description}
+              style={{ display: "flex", gap: "10px" }}
+            >
               <p>
                 Your Wallet Address:
                 <code className={styles.code}>{walletAddress}</code>
               </p>
+              {
+                // add disconnect wallet button
+                <button
+                  className={styles.removeButton}
+                  onClick={() => {
+                    setIsWalletConnected(false);
+                    setWalletAddress("");
+                    localStorage.removeItem("nft_mint_dapp_walletAddress");
+                  }}
+                >
+                  <h2>Disconnect Wallet</h2>
+                </button>
+              }
             </div>
           ) : null}
         </div>

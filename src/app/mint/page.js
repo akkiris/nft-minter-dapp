@@ -3,6 +3,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import styles from "../page.module.css";
 import { useEffect, useState } from "react";
+import { abi } from "./NftMinterDapp.json";
+
+import { ethers } from "ethers";
+
+const contractAddress = "0x6468432a317A9258968BaafF76a48c74cC3415b9";
 
 const Mint = () => {
   // Router
@@ -10,6 +15,7 @@ const Mint = () => {
 
   // State variables
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMintLoading, setIsMintLoading] = useState(false);
   const [isBrowserCompatible, setIsBrowserCompatible] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
@@ -42,8 +48,26 @@ const Mint = () => {
   };
 
   const mintNFT = async () => {
+    setIsMintLoading(true);
     console.table("mintNFT_metadata:", metaData);
     console.table("mintNFT_price:", price);
+
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, abi, signer);
+        const transaction = await contract.mint({
+          value: ethers.parseEther("0.01"),
+        });
+        const result = await transaction.wait();
+        console.log("Transaction:", transaction);
+        console.log("Result:", result);
+        setIsMintLoading(false);
+      }
+    } catch (error) {
+      setIsMintLoading(false);
+    }
   };
 
   // Await render until isLoaded is true
@@ -191,15 +215,19 @@ const Mint = () => {
 
       {isBrowserCompatible && isWalletConnected ? (
         <>
-          <button
-            className={styles.buttonWallet}
-            style={{ padding: "15px 50px" }}
-            onClick={() => {
-              mintNFT();
-            }}
-          >
-            <h2>Mint!</h2>
-          </button>
+          {isMintLoading ? (
+            <h2>Minting...</h2>
+          ) : (
+            <button
+              className={styles.buttonWallet}
+              style={{ padding: "15px 50px" }}
+              onClick={() => {
+                mintNFT();
+              }}
+            >
+              <h2>Mint!</h2>
+            </button>
+          )}
         </>
       ) : null}
 
