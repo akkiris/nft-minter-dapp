@@ -6,31 +6,44 @@ This project is developed by [Ali Kaan Kiris](mailto://kaan.kiris@softtech.com.t
 
 This is a DApp for minting NFTs on the Ethereum blockchain. It uses;
 
-[Next.js](https://nextjs.org/) for the frontend.
+* [Next.js](https://nextjs.org/) for the frontend.
 
-[notiflix](https://www.npmjs.com/package/notiflix) for the notifications.
+* [notiflix](https://www.npmjs.com/package/notiflix) for the notifications.
+ 
+* [supabase](https://supabase.io) for the database.
+ 
+* [ethers](https://www.npmjs.com/package/ethers) for the Ethereum wallet.
+ 
+* [openzeppelin/contracts](https://www.npmjs.com/package/@openzeppelin/contracts) for the NFT contract.
+ 
+* [Solidity](https://soliditylang.org/) for contract development.
+ 
+* [hardhat](https://hardhat.org/) for contract testing and deployment.
+ 
+* [sepolia-testnet](https://sepolia.dev/) for the testnet.
+ 
+* [infura](https://infura.io/) for the testnet node.
+ 
+* [MetaMask](https://metamask.io/) for the wallet.
+ 
+* [etherscan](https://etherscan.io/) for the testnet explorer.
 
-[supabase](https://supabase.io) for the database.
+## Prerequisites
+* [Node.js](https://nodejs.org/en/)
+* [Git](https://git-scm.com/)
+* [Metamask](https://metamask.io/)
+* VS Code or any other IDE
 
-[ethers](https://www.npmjs.com/package/ethers) for the Ethereum wallet.
+## Run the app with one-click installable script
+* At the project directory, open git-bash and run the following command:
 
-[openzeppelin/contracts](https://www.npmjs.com/package/@openzeppelin/contracts) for the NFT contract.
-
-[Solidity](https://soliditylang.org/) for contract development.
-
-[hardhat](https://hardhat.org/) for contract testing and deployment.
-
-[sepolia-testnet](https://sepolia.dev/) for the testnet.
-
-[infura](https://infura.io/) for the testnet node.
-
-[MetaMask](https://metamask.io/) for the wallet.
-
-[etherscan](https://etherscan.io/) for the testnet explorer.
+```bash
+./run-dev.sh
+```
 
 ## Getting Started
 
-You can skip steps (3, 4, 5) if you have already have exist `.env` file. Do not forget keys might be expired.
+You can skip steps (3, 4, 5, 6, 7) if you have already have exist `.env` file. Do not forget keys might be expired and these are pre-defined environment variables for the testnet and use case purpose.
 
 **1. First, move to the project directory:**
 
