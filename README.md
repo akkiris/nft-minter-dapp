@@ -1,6 +1,6 @@
 ## Nft Minter DApp
 
-### This project is developed for the [Softtech-Akademi Solidity Development Program](https://akademi.softtech.com.tr/softtech/eep/main/activity/10473) as use case purpose.
+This project is developed by [Ali Kaan Kiris](mailto://kaan.kiris@softtech.com.tr) for the [Softtech-Akademi Solidity Development Program](https://akademi.softtech.com.tr/softtech/eep/main/activity/10473) as use case purpose.
 
 ---
 
