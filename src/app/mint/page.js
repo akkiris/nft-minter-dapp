@@ -1,17 +1,19 @@
 "use client";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import styles from "../page.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { abi } from "./NftMinterDapp.json";
-
 import { ethers } from "ethers";
+import { supabase } from "../../supaBaseClient";
+import Notiflix from "notiflix";
 
-const contractAddress = "0x6468432a317A9258968BaafF76a48c74cC3415b9";
-
+const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const Mint = () => {
   // Router
   const router = useRouter();
+
+  // Refs
+  const hiddenFileInput = useRef(null);
 
   // State variables
   const [isLoaded, setIsLoaded] = useState(false);
@@ -20,7 +22,10 @@ const Mint = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
 
-  const [metaData, setMetaData] = useState([{ key: "", value: "" }]);
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [imageData, setImageData] = useState("");
+  const [metaData, setMetaData] = useState([]);
   const [price, setPrice] = useState(0);
 
   // Check if browser is compatible with Ethereum
@@ -47,10 +52,13 @@ const Mint = () => {
     setIsLoaded(true);
   };
 
+  // Mint NFT
   const mintNFT = async () => {
+    if (!isFormValid()) {
+      return;
+    }
+
     setIsMintLoading(true);
-    console.table("mintNFT_metadata:", metaData);
-    console.table("mintNFT_price:", price);
 
     try {
       if (window.ethereum) {
@@ -63,11 +71,110 @@ const Mint = () => {
         const result = await transaction.wait();
         console.log("Transaction:", transaction);
         console.log("Result:", result);
+        Notiflix.Notify.success("NFT minted successfully!");
+
+        await handleSavePersistentStorage();
+
         setIsMintLoading(false);
       }
     } catch (error) {
+      console.log(error);
       setIsMintLoading(false);
+      Notiflix.Report.failure(`NFT failed to mint!`, `${error}`);
     }
+  };
+
+  // Save Data to Database
+  const handleSavePersistentStorage = async () => {
+    const data = {
+      name: name,
+      meta: metaData,
+      address: walletAddress,
+      data: imageData,
+    };
+
+    let result = await supabase.from("nft").insert(data, { upsert: true });
+
+    if (result.status === 201) {
+      Notiflix.Notify.success("NFT saved to database!");
+    } else {
+      Notiflix.Notify.failure("NFT failed to save to database!");
+    }
+  };
+
+  // Handle uploaded file
+  const handleFileChange = async (event) => {
+    const fileUploaded = event.target.files[0];
+    if (!isFileValid(fileUploaded)) {
+      return;
+    } else {
+      convertBase64(fileUploaded).then((hashedImageData) => {
+        setImageData(hashedImageData);
+      });
+    }
+  };
+
+  // check if file is valid
+  const isFileValid = (fileUploaded) => {
+    let result = false;
+
+    if (!fileUploaded) {
+      return false;
+    }
+
+    if (fileUploaded["type"].split("/")[0] !== "image") {
+      Notiflix.Notify.failure("File must be an image!");
+      return false;
+    }
+
+    if (fileUploaded?.size > 1024 * 1024 * 1) {
+      Notiflix.Notify.failure(
+        "Maximum file size exceeded. You can only add files up to 1 MB in size!"
+      );
+      return false;
+    }
+
+    const fileUrl = URL.createObjectURL(fileUploaded);
+    let image = new Image();
+    image.src = fileUrl;
+    image.onload = function () {
+      setImage(fileUrl);
+    };
+    result = true;
+    return result;
+  };
+
+  // convert file to base64
+  const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  // check if form is valid to submit
+  const isFormValid = () => {
+    let result = false;
+    if (name?.length === 0) {
+      Notiflix.Notify.failure("Name is required!");
+      return false;
+    }
+    if (imageData?.length === 0) {
+      Notiflix.Notify.failure("Image is required!");
+      return false;
+    }
+    // if (price?.length === 0) {
+    //   Notiflix.Notify.failure("Price is required!");
+    //   return false;
+    // }
+    result = true;
+    return result;
   };
 
   // Await render until isLoaded is true
@@ -75,7 +182,13 @@ const Mint = () => {
 
   return (
     <main className={styles.maincenter}>
-      <div className={styles.description}>
+      <div
+        className={styles.description}
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          router.push("/");
+        }}
+      >
         <p>NFT Minter DApp</p>
       </div>
 
@@ -92,11 +205,26 @@ const Mint = () => {
                   type="text"
                   placeholder="Name"
                   className={styles.input}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div className={styles.row}>
                 <p>Upload</p>
-                <input type="file" />
+                <input
+                  type="file"
+                  ref={hiddenFileInput}
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+                <input
+                  type="button"
+                  className={styles.uploadButton}
+                  value={"Select File"}
+                  onClick={() => {
+                    hiddenFileInput.current.click();
+                  }}
+                />
                 {/* <input type="text" placeholder="Upload" /> */}
               </div>
             </div>
@@ -107,8 +235,12 @@ const Mint = () => {
               >
                 <div style={{ textAlign: "center" }}>
                   <h2>Preview</h2>
-                  <Image
-                    src="https://via.placeholder.com/300x300"
+                  <img
+                    src={
+                      image?.length > 0
+                        ? image
+                        : "https://via.placeholder.com/300x300"
+                    }
                     alt="Vercel Logo"
                     className={styles.vercelLogo}
                     width={300}
@@ -195,9 +327,10 @@ const Mint = () => {
                   type="number"
                   max={1000000000000}
                   min={0}
+                  value={0.01}
+                  disabled={true}
                   placeholder="Amount"
                   className={styles.input}
-                  value={price}
                   onChange={(e) => {
                     setPrice(e.target.value ?? 0);
                   }}

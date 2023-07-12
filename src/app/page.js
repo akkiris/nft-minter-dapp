@@ -2,6 +2,8 @@
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { useEffect, useState } from "react";
+import { supabase } from "../supaBaseClient";
+import Notiflix from "notiflix";
 
 export default function Home() {
   // Router
@@ -12,18 +14,26 @@ export default function Home() {
   const [isBrowserCompatible, setIsBrowserCompatible] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
+  const [randomNft, setRandomNft] = useState([]);
 
   // Check if browser is compatible with Ethereum
   useEffect(() => {
     if (window.ethereum) {
+      Notiflix.Notify.info("Wallet detected!");
       console.log("Ethereum successfully detected!");
       setIsBrowserCompatible(true);
       checkLocalStorage();
     } else {
+      Notiflix.Notify.failure("Wallet not detected!");
       console.log("Ethereum not detected!");
       setIsBrowserCompatible(false);
       setIsLoaded(true);
     }
+  }, []);
+
+  // Get random 3 nft from supabase
+  useEffect(() => {
+    getRandomNFT();
   }, []);
 
   // Check local storage for wallet address
@@ -61,6 +71,21 @@ export default function Home() {
   const redirectToMintPage = () => {
     if (isWalletConnected) {
       router.push("/mint");
+    }
+  };
+
+  // Get random 3 nft from supabase
+  const getRandomNFT = async () => {
+    const { data, error } = await supabase
+      .from("nft")
+      .select("*")
+      .order("id", { ascending: true })
+      .limit(100);
+    if (error) {
+      console.log(error);
+    } else {
+      setRandomNft(data ?? []);
+      console.log(data);
     }
   };
 
@@ -123,7 +148,28 @@ export default function Home() {
         </>
       ) : null}
 
-      <div className={styles.grid}></div>
+      <h2 style={{ padding: "20px 0" }}>Random NFTs</h2>
+
+      <div className={styles.gallery}>
+        {randomNft.map((nft) => (
+          <div key={nft.id} className={styles.galleryItem}>
+            <div>
+              <img
+                src={nft.data}
+                alt="NFT"
+                width={300}
+                height={300}
+                onClick={() => {
+                  Notiflix.Report.info(`Meta Data`, JSON.stringify(nft.meta));
+                }}
+              />
+              <div>
+                <h3 className={styles.cardTitle}>{nft.name}</h3>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

@@ -282,15 +282,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .vercelLogo {
-    filter: invert(1);
-  }
-
-  .logo {
-    filter: invert(1) drop-shadow(0 0 0.3rem #ffffff70);
-  }
-}
+@media (prefers-color-scheme: dark) {}
 
 @keyframes rotate {
   from {
@@ -402,4 +394,39 @@
 .removeButton:hover,
 .buttonWallet:hover {
   color: #17dfb4;
+}
+
+.uploadButton {
+  padding: 0.6em 2em;
+  border: none;
+  outline: none;
+  color: rgb(255, 255, 255);
+  background: #111;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border: 1px solid #00ffd5;
+  border-radius: 10px;
+  min-width: 100px;
+
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.galleryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+
 }

@@ -23,3 +23,7 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 
 
+
+
+## Packages
+npm install @supabase/supabase-js
